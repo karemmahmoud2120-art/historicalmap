@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>الخريطة الأثرية لمصر</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    #map { height: 100vh; }
+    .popup-img { width: 200px; border-radius: 10px; margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+  <script>
+    // إنشاء الخريطة
+    var map = L.map('map').setView([26.8, 30.8], 6);
+
+    // خلفية قمر صناعي (Esri World Imagery)
+    L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles © Esri'
+    }).addTo(map);
+
+    // تحميل ملف GeoJSON
+    new L.GeoJSON.AJAX("sites.geojson", {
+      onEachFeature: function (feature, layer) {
+        if (feature.properties) {
+          var popupContent = `
+            <b>الاسم:</b> ${feature.properties["Name"] || ''}<br>
+            <b>Name (EN):</b> ${feature.properties["Name-en"] || ''}<br>
+            <b>الوصف:</b> ${feature.properties["Description"] || ''}<br>
+            <b>التاريخ:</b> ${feature.properties["date"] || ''}<br>
+            <b>النوع:</b> ${feature.properties["type"] || ''}<br>
+            ${feature.properties["Image_URL"] ? `<img src="${feature.properties["Image_URL"]}" class="popup-img"><br>` : ""}
+          `;
+          layer.bindPopup(popupContent);
+        }
+      }
+    }).addTo(map);
+  </script>
+</body>
+</html>
